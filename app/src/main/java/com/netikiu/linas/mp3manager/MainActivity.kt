@@ -1,6 +1,8 @@
 package com.netikiu.linas.mp3manager
 
 import android.app.Activity
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -175,6 +177,13 @@ fun Greeting(mlist: SnapshotStateList<MusicMetaData.F>, name: String, modifier: 
                         c.startActivity(browserIntent)
                     }) {
                         Text("YT music")
+                    }
+                    Button(onClick = {
+                        val clipboard = c.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                        val clip = ClipData.newPlainText("song info", "${metaData.artist} - ${metaData.title}\n${metaData.f.absolutePath}")
+                        clipboard.setPrimaryClip(clip)
+                    }) {
+                        Text("Copy")
                     }
                     Button(
                         enabled = metaData.rating > 0 && metaData.rating < 3,
