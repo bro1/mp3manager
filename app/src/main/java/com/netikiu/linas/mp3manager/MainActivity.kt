@@ -10,9 +10,12 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -123,6 +126,7 @@ fun retrieveMetadata(files : List<File>) : List<MusicMetaData.F> {
 
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Greeting(mlist: SnapshotStateList<MusicMetaData.F>, name: String, modifier: Modifier = Modifier, c: Context) {
 
@@ -148,6 +152,15 @@ fun Greeting(mlist: SnapshotStateList<MusicMetaData.F>, name: String, modifier: 
                     containerColor = color1
                 ),
                 modifier = Modifier
+                    .combinedClickable(
+                        onClick = { /* Do nothing on click */ },
+                        onLongClick = {
+                            val clipboard = c.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                            val clip = ClipData.newPlainText("song info", "${metaData.artist} - ${metaData.title}\n${metaData.f.absolutePath}")
+                            clipboard.setPrimaryClip(clip)
+                            Toast.makeText(c, "added to clipboard", Toast.LENGTH_SHORT).show()
+                        }
+                    )
                     .wrapContentHeight()
                     .padding(0.dp)
                     .fillMaxWidth()) {
@@ -177,13 +190,6 @@ fun Greeting(mlist: SnapshotStateList<MusicMetaData.F>, name: String, modifier: 
                         c.startActivity(browserIntent)
                     }) {
                         Text("YT music")
-                    }
-                    Button(onClick = {
-                        val clipboard = c.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                        val clip = ClipData.newPlainText("song info", "${metaData.artist} - ${metaData.title}\n${metaData.f.absolutePath}")
-                        clipboard.setPrimaryClip(clip)
-                    }) {
-                        Text("Copy")
                     }
                     Button(
                         enabled = metaData.rating > 0 && metaData.rating < 3,
